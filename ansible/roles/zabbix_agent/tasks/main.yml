@@ -1,0 +1,31 @@
+- name: Установить агент
+  ansible.builtin.apt:
+    name: zabbix-agent
+    state: present
+
+- name: Основные настройки агента
+  ansible.builtin.lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^{{ item.key }}='
+    line: "{{ item.key }}={{ item.value }}"
+  loop:
+    - { key: Server, value: "{{ zabbix_server_ip }}" }
+    - { key: ServerActive, value: "{{ zabbix_server_ip }}" }
+    - { key: Hostname, value: "{{ inventory_hostname }}" }
+  notify: Restart zabbix-agent
+
+- name: Свои проверки для балансировщиков
+  ansible.builtin.copy:
+    dest: /etc/zabbix/zabbix_agentd.conf.d/stand.conf
+    content: |
+      UserParameter=stand.vip.present,ip -br a show {{ vrrp_interface }} | grep -c {{ vip }} || true
+      UserParameter=stand.haproxy.active,systemctl is-active --quiet haproxy && echo 1 || echo 0
+    mode: "0644"
+  when: "'lb' in group_names"
+  notify: Restart zabbix-agent
+
+- name: Агент запущен
+  ansible.builtin.service:
+    name: zabbix-agent
+    state: started
+    enabled: true

@@ -1,0 +1,44 @@
+- name: Установить nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Каталог сайта
+  ansible.builtin.file:
+    path: /var/www/stand
+    state: directory
+    mode: "0755"
+
+- name: Страница с именем хоста
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/stand/index.html
+    mode: "0644"
+
+- name: Конфиг сайта
+  ansible.builtin.template:
+    src: stand.conf.j2
+    dest: /etc/nginx/sites-available/stand
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Включить сайт
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/stand
+    dest: /etc/nginx/sites-enabled/stand
+    state: link
+  notify: Reload nginx
+
+- name: Выключить default
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload nginx
+
+- name: nginx запущен и в автозагрузке
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

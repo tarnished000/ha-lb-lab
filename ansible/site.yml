@@ -1,0 +1,20 @@
+- name: Общее для всех
+  hosts: all
+  become: true
+  roles: [common]
+
+- name: Веб-серверы
+  hosts: web
+  become: true
+  roles: [nginx]
+
+- name: Балансировщики
+  hosts: lb
+  become: true
+  serial: 1
+  roles: [haproxy, keepalived]
+
+- name: Агент Zabbix
+  hosts: lb:web
+  become: true
+  roles: [zabbix_agent]

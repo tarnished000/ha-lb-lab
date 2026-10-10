@@ -1,0 +1,40 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: e4b30ec1b08646a0a132c80e4ead1297
+      name: Templates/Stand
+  templates:
+    - uuid: b0371bdd4f864ee885f9308e0ce3aaa5
+      template: 'Stand HA LB'
+      name: 'Stand HA LB'
+      description: 'Метрики балансировщиков стенда ha-lb-lab: состояние HAProxy и наличие VIP на узле. Требует UserParameter из роли zabbix_agent.'
+      groups:
+        - name: Templates/Stand
+      items:
+        - uuid: e300b985150e4de0b98fef0323898c6b
+          name: 'HAProxy: служба активна'
+          key: stand.haproxy.active
+          delay: 10s
+          value_type: UNSIGNED
+          description: '1 — haproxy.service активен, 0 — нет.'
+          tags:
+            - tag: component
+              value: haproxy
+          triggers:
+            - uuid: bb99823687fb49578cf997f4626b2ade
+              expression: 'last(/Stand HA LB/stand.haproxy.active)=0'
+              name: 'HAProxy не запущен на {HOST.NAME}'
+              priority: HIGH
+              description: 'Keepalived должен был отдать VIP второму балансировщику через track_script.'
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: 82fd0edf254441c08b3b9229a882fe68
+          name: 'Keepalived: VIP на этом узле'
+          key: stand.vip.present
+          delay: 10s
+          value_type: UNSIGNED
+          description: '1 — VIP сейчас на этом узле, 0 — нет. Сумма по двум балансировщикам должна быть ровно 1.'
+          tags:
+            - tag: component
+              value: keepalived

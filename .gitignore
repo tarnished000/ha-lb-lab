@@ -1,0 +1,12 @@
+# секреты
+.env
+*.vault
+
+# логи прогонов Ansible
+*.log
+*.retry
+
+# служебное
+__pycache__/
+.vscode/
+.idea/

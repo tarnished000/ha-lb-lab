@@ -1,0 +1,4 @@
+vip: 192.168.56.100
+vrrp_interface: enp0s8
+keepalived_vrid: 51
+zabbix_server_ip: 192.168.56.30

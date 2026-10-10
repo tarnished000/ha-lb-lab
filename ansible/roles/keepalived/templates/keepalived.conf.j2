@@ -1,0 +1,26 @@
+global_defs {
+    router_id {{ inventory_hostname }}
+    script_user root
+    enable_script_security
+}
+
+vrrp_script chk_haproxy {
+    script "/usr/bin/systemctl is-active --quiet haproxy"
+    interval 2
+    fall 2
+    rise 2
+}
+
+vrrp_instance VI_1 {
+    state {{ keepalived_state }}
+    interface {{ vrrp_interface }}
+    virtual_router_id {{ keepalived_vrid }}
+    priority {{ keepalived_priority }}
+    advert_int 1
+    virtual_ipaddress {
+        {{ vip }}/24 dev {{ vrrp_interface }}
+    }
+    track_script {
+        chk_haproxy
+    }
+}

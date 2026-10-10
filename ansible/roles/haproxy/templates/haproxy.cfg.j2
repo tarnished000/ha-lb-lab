@@ -1,0 +1,38 @@
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    timeout connect 5s
+    timeout client  50s
+    timeout server  50s
+
+frontend fe_web
+    bind *:80
+    option forwardfor
+    default_backend be_web
+
+backend be_web
+    balance roundrobin
+    option httpchk
+    http-check send meth GET uri /health
+    http-check expect status 200
+{% for host in groups['web'] %}
+    server {{ host }} {{ hostvars[host].ansible_host }}:80 check inter 2s fall 3 rise 2
+{% endfor %}
+
+listen stats
+    bind *:8404
+    stats enable
+    stats uri /stats
+    stats refresh 5s

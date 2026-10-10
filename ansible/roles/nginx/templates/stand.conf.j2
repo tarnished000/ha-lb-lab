@@ -1,0 +1,15 @@
+server {
+    listen 80 default_server;
+    server_name _;
+    root /var/www/stand;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location = /health {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+}

@@ -1,0 +1,16 @@
+- name: Имя хоста как в inventory
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Строка 127.0.1.1 со своим именем
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s'
+    line: "127.0.1.1 {{ inventory_hostname }}"
+
+- name: Записи всех узлов стенда в /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '\s{{ item }}$'
+    line: "{{ hostvars[item].ansible_host }} {{ item }}"
+  loop: "{{ groups['all'] }}"

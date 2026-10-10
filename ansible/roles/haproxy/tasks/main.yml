@@ -1,0 +1,18 @@
+- name: Установить haproxy
+  ansible.builtin.apt:
+    name: haproxy
+    state: present
+
+- name: Конфиг haproxy
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: "0644"
+    validate: haproxy -c -f %s
+  notify: Reload haproxy
+
+- name: haproxy запущен
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: true
