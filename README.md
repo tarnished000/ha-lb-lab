@@ -129,7 +129,7 @@ curl http://192.168.56.11:8404/stats # статистика HAProxy
 - [x] Keepalived: VIP, failover, сценарии split-brain
 - [x] Ansible: роли, идемпотентный прогон (`changed=0`)
 - [x] Zabbix: сервер в Docker, агенты через Ansible
-- [ ] Zabbix: хосты, шаблон `stand_ha_lb`, триггер split-brain, проверка алертов
+- [x] Zabbix: хосты, шаблон `stand_ha_lb`, триггер split-brain, проверка алертов
 
 ## Что дальше
 
